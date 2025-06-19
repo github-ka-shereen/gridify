@@ -1,18 +1,15 @@
-import '@/app/globals.css'; // Your global Tailwind CSS file
+import '@/app/globals.css';
 import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
-import React, { useEffect } from 'react'; // Import useEffect
+import React, { useEffect } from 'react';
 import { View } from 'react-native';
 import { ThemeProvider, useTheme } from '@/components/ThemeProvider';
 
-// Prevent the splash screen from auto-hiding while fonts load
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
-  // Load your custom fonts
   const [fontsLoaded, fontError] = useFonts({
-    // Add fontError for better debugging
     'Rubik-Black': require('../assets/fonts/Rubik-Black.ttf'),
     'Rubik-BlackItalic': require('../assets/fonts/Rubik-BlackItalic.ttf'),
     'Rubik-Bold': require('../assets/fonts/Rubik-Bold.ttf'),
@@ -30,34 +27,58 @@ export default function RootLayout() {
     'SpaceMono-Regular': require('../assets/fonts/SpaceMono-Regular.ttf'),
   });
 
-  // Effect to hide splash screen once fonts are loaded or if there's an error
   useEffect(() => {
     if (fontsLoaded || fontError) {
       SplashScreen.hideAsync();
     }
   }, [fontsLoaded, fontError]);
 
-  // If fonts are not loaded (and no error occurred), keep splash screen visible
   if (!fontsLoaded && !fontError) {
     return null;
   }
 
-  // This component wraps your entire app content with the ThemeProvider
-  // and applies the dark/light theme class based on the current theme.
   function AppWrapper() {
     const { theme } = useTheme();
     return (
-      // The 'dark' class needs to be on a parent View that wraps all routes
-      // so NativeWind can apply dark mode styles to all components within.
       <View className={`${theme === 'dark' ? 'dark' : ''} flex-1`}>
-        {/* The Stack component renders your actual routes (e.g., app/index.tsx, app/imagecropper.tsx) */}
-        <Stack />
+        <Stack screenOptions={{ headerShown: false }}>
+          {/*
+            This is crucial: The `(tabs)` group is now a single screen in the root Stack.
+            Its internal navigation (the actual tabs) is defined in `app/(tabs)/_layout.tsx`.
+            By setting `headerShown: false` here, you let `app/(tabs)/_layout.tsx` (and its screens)
+            control their own headers, preventing a double header.
+          */}
+          <Stack.Screen name='(tabs)' options={{ headerShown: false }} />
+
+          {/*
+            These screens are outside the tabs and will cover the tabs when navigated to.
+            They are part of the main navigation stack.
+            Ensure these match your actual file names in `app/`.
+          */}
+          <Stack.Screen
+            name='ViewImageScreen'
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name='EditImageScreen'
+            options={{ headerShown: false }}
+          />
+
+          {/* Modal screens */}
+          <Stack.Screen
+            name='(modals)/settings'
+            options={{ presentation: 'modal', headerShown: false }}
+          />
+          <Stack.Screen
+            name='(modals)/trash'
+            options={{ presentation: 'modal', headerShown: false }}
+          />
+        </Stack>
       </View>
     );
   }
 
   return (
-    // The ThemeProvider must wrap the AppWrapper
     <ThemeProvider>
       <AppWrapper />
     </ThemeProvider>

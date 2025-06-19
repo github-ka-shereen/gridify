@@ -5,13 +5,13 @@ import * as MediaLibrary from 'expo-media-library'; // <--- NEW IMPORT for savin
 import { useState } from 'react';
 import {
   Alert,
-  Button,
   Dimensions,
   Image,
   ScrollView,
   Text,
   View,
 } from 'react-native';
+import { Button } from '../ui/Button';
 
 // Get screen width for responsive image display
 const { width: screenWidth } = Dimensions.get('window');
@@ -217,12 +217,10 @@ export default function ImageCropperScreen() {
             <Button
               title='Save to Photos'
               onPress={saveCroppedImage}
-              color='#4CAF50' // Example color
             />
             <Button
               title='Reset Crop'
               onPress={() => setCroppedImage(null)}
-              color='#f44336' // Example color
             />
           </View>
           {/* NEW BUTTONS ENDS ---> */}
